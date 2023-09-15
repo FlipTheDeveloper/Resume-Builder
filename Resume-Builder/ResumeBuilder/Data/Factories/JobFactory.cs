@@ -1,4 +1,5 @@
 ﻿using ResumeBuilder.Data.Models;
+using System.Net.Sockets;
 using System.Text.Json;
 
 namespace ResumeBuilder.Data.Factories
@@ -12,11 +13,19 @@ namespace ResumeBuilder.Data.Factories
                 Role = new List<Job>();
                 Contact = new List<Contact>();
                 Experience = new List<JobExperience>();
+                Skills = new List<string>() {
+                 "SQL","Python","C#","JavaScript","Microsoft Office Suite","Excel","ASP.NET MVC","jQuery ",
+                 ".Net","XML","HTML","REST","Visual Studio","MS SQL Server","MySQL","Unity ",
+                 "Agile Methodology","Google Suite","PHP","SCRUM","Visual Studio","Visual Studio Code",
+                 "React Native","Docker","Kubernetes","Java","Git","Windows 10"," Windows 11 ",
+                 "MySQL","MongoDB","API Development","Entity Framework","Azure DevSecOps ",
+                }.Distinct().OrderBy(x => x).ToList();
             }
 
             public List<Job> Role { get; set; }
             public List<Contact> Contact { get; set; }
             public List<JobExperience> Experience { get; set; }
+            public List<string> Skills { get; set; }
         }
 
         private static SudoJobContext? JobContext { get; set; }

@@ -9,14 +9,59 @@
     .job-experience {
         break-inside: avoid;
     }
+
+    .blue {
+        color: #1F3864;
+    }
+
+    .blue-background{
+        background-color: #D9E2F3;
+    }
 </style>
 <div class="d-print-none">
     <input @bind="text" />
     <p><code>@jf.Experience.Select(skill => skill.Tag).Aggregate((string string1, string string2) => {return $"{string1}, {string2}";})</code></p>
 </div>
-<h1 class="text-center">Gabriel Pierce</h1>
+<h1 class="text-center blue">Gabriel Pierce</h1>
 <h4 class="text-center">(385) 264-2053  |  GabeBrPierce@gmail.com</h4>
-<h2 class="text-center"><strong>COMPUTER SCIENTIST</strong></h2>
+<h2 class="text-center blue"><strong>COMPUTER SCIENTIST</strong></h2>
+<hr />
+<p class="text-center">
+    <small>Data Analytics  |  Computer Programming  |  Customer Service</small>
+</p>
+<br />
+<div class="center">
+    <div class="d-flex justify-content-center">
+        <div>
+            Problem-solving software designer who creates user-friendly solutions to complex problems.
+            <ul style="list-style-type:disc;">
+                <li>Understands computer science practices, methods, and techniques.</li>
+                <li>Follows specific directions to meet company or client's needs.</li>
+                <li>Knows computer design and programming software to complete design and analysis tasks.</li>
+                <li>Adapts to changing situations and proposes solutions to software problems.</li>
+                <li>Analyzes and interprets data to identify trends and patterns.</li>
+                <li>Recommends effective solutions that utilize computer science principles.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container text-center blue-background">
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col-8">
+            <div class="d-flex justify-content-center align-content-center flex-wrap">
+            @foreach (var skill in jf.Skills)
+            {
+                <div class="px-1" >@skill</div>
+            }
+            </div>
+        </div>
+        <div class="col-2"></div>
+    </div>
+</div>
+
+<h4 class="blue">Experience</h4>
 <hr />
 @foreach (var job in jf.Role.OrderByDescending(job => job.Start))
 {
@@ -31,19 +76,19 @@
 
     // Find all of the stored experience entries in this job with tags that contain the search terms.
     relatedExperience = jf.Experience
-        .Where(ex => tags
-            .Where(searchTerm =>
-                ex.Tag
-                .ToUpper()
-                .Trim()
-                .Contains(
-                    searchTerm
-                    .ToUpper()
-                    .Trim()
-                )
-            && ex.AssociatedJob == job).Any()
-        )
-        .ToList();
+    .Where(ex => tags
+    .Where(searchTerm =>
+    ex.Tag
+    .ToUpper()
+    .Trim()
+    .Contains(
+    searchTerm
+    .ToUpper()
+    .Trim()
+    )
+    && ex.AssociatedJob == job).Any()
+    )
+    .ToList();
 
 
 
@@ -115,6 +160,12 @@
 
 }
 
+<h4 class="blue">Education</h4>
+<hr />
+<p>
+    OGDEN-WEBER TECHNICAL COLLEGE, Ogden UT, 04/2019<br />
+    <bold>Software Development Certificate | 1,440 hours</bold>
+</p>
 @code {
     public string text = "";
     List<JobExperience>? relatedExperience = new List<JobExperience>();

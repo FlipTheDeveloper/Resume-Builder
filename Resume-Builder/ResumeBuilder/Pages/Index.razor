@@ -1,9 +1,123 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+@using Data.Factories;
+@using Data.Models;
+@using System.Text.Json
 
-<h1>Hello, world!</h1>
+<PageTitle>Resume</PageTitle>
+<style>
+    .job-experience {
+        break-inside: avoid;
+    }
+</style>
+<div class="d-print-none">
+    <input @bind="text" />
+    <p><code>@jf.Experience.Select(skill => skill.Tag).Aggregate((string string1, string string2) => {return $"{string1}, {string2}";})</code></p>
+</div>
+<h1 class="text-center">Gabriel Pierce</h1>
+<h4 class="text-center">(385) 264-2053  |  GabeBrPierce@gmail.com</h4>
+<h2 class="text-center"><strong>COMPUTER SCIENTIST</strong></h2>
+<hr />
+@foreach (var job in jf.Role.OrderByDescending(job => job.Start))
+{
+    // This is a variable that is used to display results later.
+    List<string>? experienceEntriesToDisplay = null;
 
-Welcome to your new app.
+    // Split the search terms.
+    string[] tags = text.Split(",").Select(x => x.Trim()).ToArray();
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    // Determine the number of experience entries to display
+    int limit = tags.Count() <= 5 ? 5 : tags.Count();
+
+    // Find all of the stored experience entries in this job with tags that contain the search terms.
+    relatedExperience = jf.Experience
+        .Where(ex => tags
+            .Where(searchTerm =>
+                ex.Tag
+                .ToUpper()
+                .Trim()
+                .Contains(
+                    searchTerm
+                    .ToUpper()
+                    .Trim()
+                )
+            && ex.AssociatedJob == job).Any()
+        )
+        .ToList();
+
+
+
+    // If there is more than one search term, we need to shuffle the experience entries so that all of the tags are represented.
+    if (relatedExperience.Count() > 1)
+    {
+        // Get all of the experience entries, we are going to represent them as a List<string>.
+        Dictionary<string, List<string>> experienceEntries = new Dictionary<string, List<string>>();
+        foreach (var experience in relatedExperience!)
+        {
+            List<string> jobExperience = JsonSerializer.Deserialize<List<string>>(experience.Experience) ?? new List<string>();
+            experienceEntries.Add(experience.Tag, jobExperience);
+        }
+
+        // Great now we have a bunch of Lists of stuff I can display that would be applicable to this custom resume. Now lets shuffle.
+        experienceEntriesToDisplay = new List<string>();
+        for (int i = 0; i < limit; i++)
+        {
+            // To ensure an even distribution of keys.
+            string currentKey = experienceEntries.Keys.ToArray()[i % experienceEntries.Keys.Count()];
+            string experience;
+
+            // The way the data set works is that I added quanitified experiences at the beginning,
+            // I don't want all of my experiences being quantified. This solves that problem.
+            try
+            {
+                experience = experienceEntries[currentKey][i];
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                experience = experienceEntries[currentKey].First();
+            }
+
+            // Remove from old list to ensure no duplication.
+            experienceEntries[currentKey].Remove(experience);
+
+            // Add to new list.
+            experienceEntriesToDisplay.Add(experience);
+        }
+
+    }
+
+    @if (relatedExperience != null && relatedExperience.Count != 0)
+    {
+        // This case should only be true if we have only one experience for this job.
+        if (experienceEntriesToDisplay == null)
+        {
+            // We get the first five of the first (and only) related experience.
+            experienceEntriesToDisplay = (JsonSerializer.Deserialize<List<string>>(relatedExperience.First().Experience) ?? new List<string>()).Take(limit).ToList();
+        }
+
+        <div class="job-experience">
+            <p>
+                @job.Title, @job.Location<br>
+                @job.Start.ToString("MMM yyyy") - @job.End.ToString("MMM yyyy")<br>
+                <strong>@job.Role</strong>
+            </p>
+            <p>
+                <em>@job.Summary</em>
+            </p>
+            <ul>
+                @foreach (string experience in experienceEntriesToDisplay)
+                {
+                    <li>@experience</li>
+                }
+            </ul>
+        </div>
+    }
+
+}
+
+@code {
+    public string text = "";
+    List<JobExperience>? relatedExperience = new List<JobExperience>();
+    JobFactory.SudoJobContext jf = JobFactory.Run();
+}
+

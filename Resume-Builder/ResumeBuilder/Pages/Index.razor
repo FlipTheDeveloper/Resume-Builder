@@ -17,15 +17,26 @@
     .blue-background{
         background-color: #D9E2F3;
     }
+
+    h2, h4{
+        padding: 0;
+        margin: 0;
+    }
+
+    hr {
+        padding-top: 0;
+        margin-top: 0;
+    }
 </style>
 <div class="d-print-none">
-    <input @bind="text" />
+    <code>search key:</code><input @bind="text" />
+    <code>year:</code><input @bind="year" />
     <p><code>@jf.Experience.Select(skill => skill.Tag).Aggregate((string string1, string string2) => {return $"{string1}, {string2}";})</code></p>
 </div>
 <h1 class="text-center blue">Gabriel Pierce</h1>
-<h4 class="text-center">(385) 264-2053  |  GabeBrPierce@gmail.com</h4>
+<p class="text-center">(385) 264-2053  |  GabeBrPierce@gmail.com</p>
 <h2 class="text-center blue"><strong>COMPUTER SCIENTIST</strong></h2>
-<hr />
+<hr class="p-0 m-0" />
 <p class="text-center">
     <small>Data Analytics  |  Computer Programming  |  Customer Service</small>
 </p>
@@ -46,24 +57,16 @@
     </div>
 </div>
 
-<div class="container text-center blue-background">
-    <div class="row">
-        <div class="col-2"></div>
-        <div class="col-8">
-            <div class="d-flex justify-content-center align-content-center flex-wrap">
-            @foreach (var skill in jf.Skills)
-            {
-                <div class="px-1" >@skill</div>
-            }
-            </div>
-        </div>
-        <div class="col-2"></div>
-    </div>
+<div class="d-flex justify-content-center align-content-center flex-wrap text-center blue-background mx-4 mb-3 p-2">
+    @foreach (var skill in jf.Skills)
+    {
+        <div class="px-1" >@skill</div>
+    }
 </div>
 
 <h4 class="blue">Experience</h4>
 <hr />
-@foreach (var job in jf.Role.OrderByDescending(job => job.Start))
+@foreach (var job in jf.Role.OrderByDescending(job => job.Start).Where(job => year == "" || job.End.Year >= int.Parse(year)))
 {
     // This is a variable that is used to display results later.
     List<string>? experienceEntriesToDisplay = null;
@@ -142,8 +145,11 @@
 
         <div class="job-experience">
             <p>
-                @job.Title, @job.Location<br>
-                @job.Start.ToString("MMM yyyy") - @job.End.ToString("MMM yyyy")<br>
+                <div class="d-flex">
+                    <div class="me-auto">@job.Title, @job.Location</div>
+                    <div>@job.Start.ToString("MM/yyyy") – @job.End.ToString("MM/yyyy")</div>
+                </div>
+
                 <strong>@job.Role</strong>
             </p>
             <p>
@@ -163,11 +169,15 @@
 <h4 class="blue">Education</h4>
 <hr />
 <p>
-    OGDEN-WEBER TECHNICAL COLLEGE, Ogden UT, 04/2019<br />
+    <div class="d-flex">
+        <div class="me-auto">OGDEN-WEBER TECHNICAL COLLEGE, Ogden UT</div>
+        <div>04/2019</div>
+    </div>
     <bold>Software Development Certificate | 1,440 hours</bold>
 </p>
 @code {
     public string text = "";
+    public string year = "";
     List<JobExperience>? relatedExperience = new List<JobExperience>();
     JobFactory.SudoJobContext jf = JobFactory.Run();
 }
